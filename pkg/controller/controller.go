@@ -117,7 +117,8 @@ func (q *QueueWorker) ProcessMessage() bool {
 	}
 
 	// Error.  Maybe retry if haven't hit the limit.
-	if q.Queue.NumRequeues(key) < q.MaxRetries {
+	// QueueWorker should work with infinite retry
+	if q.MaxRetries < 0 || q.Queue.NumRequeues(key) < q.MaxRetries {
 		glog.V(4).Infof("Error handling %s Queue message %v: %v", q.Name, key, err)
 		q.Queue.AddRateLimited(key)
 		return false
